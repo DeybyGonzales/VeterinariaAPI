@@ -1,0 +1,88 @@
+# Pruebas de la API (extensión REST Client en VS Code: "Send Request" sobre cada bloque)
+# Cambia @base por la URL publicada en la nube para las pruebas finales.
+@base = http://localhost:5284
+# @base = https://<tu-app>.azurewebsites.net
+
+### 200 - Listar propietarios (filtro opcional ?buscar=)
+GET {{base}}/api/propietarios?buscar=lopez
+
+### 200 - Propietario por id
+GET {{base}}/api/propietarios/1
+
+### 404 - Propietario inexistente
+GET {{base}}/api/propietarios/999
+
+### 200 - Ruta anidada: mascotas de un propietario
+GET {{base}}/api/propietarios/1/mascotas
+
+### 201 - Crear propietario
+POST {{base}}/api/propietarios
+Content-Type: application/json
+
+{ "nombres": "Pedro Castillo Vega", "dni": "12345678", "telefono": "999888777", "email": "pedro@mail.com" }
+
+### 409 - DNI duplicado
+POST {{base}}/api/propietarios
+Content-Type: application/json
+
+{ "nombres": "Otra Persona", "dni": "45678912", "telefono": "999888777" }
+
+### 400 - Datos inválidos (Data Annotations)
+POST {{base}}/api/propietarios
+Content-Type: application/json
+
+{ "nombres": "A", "dni": "12ab", "telefono": "1" }
+
+### 204 - Actualizar propietario (usa el id creado)
+PUT {{base}}/api/propietarios/4
+Content-Type: application/json
+
+{ "id": 4, "nombres": "Pedro Castillo Vega", "dni": "12345678", "telefono": "911111111" }
+
+### 400 - Id de la ruta distinto del cuerpo
+PUT {{base}}/api/propietarios/4
+Content-Type: application/json
+
+{ "id": 5, "nombres": "Pedro Castillo Vega", "dni": "12345678", "telefono": "911111111" }
+
+### 409 - Eliminar propietario con mascotas
+DELETE {{base}}/api/propietarios/1
+
+### 200 - Listar mascotas con filtros
+GET {{base}}/api/mascotas?especie=Perro&edadMax=5
+
+### 200 - Mascota por id
+GET {{base}}/api/mascotas/1
+
+### 404 - Mascota inexistente
+GET {{base}}/api/mascotas/999
+
+### 201 - Crear mascota (solo se envía propietarioId)
+POST {{base}}/api/mascotas
+Content-Type: application/json
+
+{ "nombre": "Toby", "especie": "Perro", "raza": "Beagle", "edad": 4, "peso": 12.5, "propietarioId": 4 }
+
+### 400 - Propietario (clave foránea) inexistente
+POST {{base}}/api/mascotas
+Content-Type: application/json
+
+{ "nombre": "Kira", "especie": "Gato", "edad": 2, "peso": 3, "propietarioId": 999 }
+
+### 409 - Mascota con nombre repetido para el mismo propietario
+POST {{base}}/api/mascotas
+Content-Type: application/json
+
+{ "nombre": "Firulais", "especie": "Perro", "edad": 1, "peso": 5, "propietarioId": 1 }
+
+### 204 - Actualizar mascota (usa el id creado)
+PUT {{base}}/api/mascotas/5
+Content-Type: application/json
+
+{ "id": 5, "nombre": "Toby", "especie": "Perro", "raza": "Beagle", "edad": 5, "peso": 13, "propietarioId": 4 }
+
+### 204 - Eliminar mascota
+DELETE {{base}}/api/mascotas/5
+
+### 204 - Eliminar propietario sin mascotas
+DELETE {{base}}/api/propietarios/4
